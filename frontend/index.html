@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HabitRing - 180 Day Challenge</title>
+    <!-- Outfit Font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;950&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=1.0.4">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Toast Notification Container -->
+        <div id="toast-container"></div>
+
+        <!-- AUTH SCREEN (OVERLAY CARD) -->
+        <div id="auth-screen" class="auth-overlay">
+            <div class="auth-card glass-card">
+                <!-- Glow background decorators -->
+                <div class="glow-bg glow-top"></div>
+                <div class="glow-bg glow-bottom"></div>
+                
+                <div class="auth-header">
+                    <div class="auth-logo-bg">
+                        <i data-lucide="flame" class="auth-logo-icon"></i>
+                    </div>
+                    <h1>HabitRing</h1>
+                    <p class="subtitle">180-Day Daily Routine Challenge</p>
+                </div>
+
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form">
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" id="login-email" required placeholder="your.name@email.com">
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        Start Challenge <i data-lucide="arrow-right"></i>
+                    </button>
+                </form>
+
+                <!-- Register Form (Hidden by default) -->
+                <form id="register-form" class="auth-form hidden">
+                    <div class="input-group">
+                        <label>Challenger Name</label>
+                        <input type="text" id="register-name" required placeholder="e.g. John Doe">
+                    </div>
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" id="register-email" required placeholder="john.doe@email.com">
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="register-password" required placeholder="Min. 8 chars, 1 uppercase, 1 symbol">
+                    </div>
+                    <button type="submit" class="btn-secondary">
+                        Create Account & Join <i data-lucide="user-plus"></i>
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <a href="#" id="toggle-auth-btn">Don't have an account? Sign up</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN INTERFACE HEADER -->
+        <header class="app-header">
+            <div class="logo-area">
+                <div class="logo-bg">
+                    <i data-lucide="flame" class="logo-icon"></i>
+                </div>
+                <div>
+                    <h2>HabitRing</h2>
+                    <span id="current-day-label">Day -- of 180</span>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <!-- Quick Stats Badge (Streaks) -->
+                <div class="streak-badge">
+                    <i data-lucide="zap" class="streak-icon"></i>
+                    <span id="header-streak-count">-- Days</span>
+                </div>
+                <!-- Sign Out Icon Button -->
+                <button id="logout-btn" class="header-logout-btn" title="Exit Challenge (Sign Out)">
+                    <i data-lucide="log-out"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- CONTENT SCROLLER (MOBILE CONTAINER) -->
+        <main class="content-scroller">
+
+            <!-- VIEW 1: DASHBOARD -->
+            <section id="dashboard-view" class="view-section">
+                <!-- Date Selector Carousel -->
+                <div class="date-carousel-container glass-card">
+                    <div id="date-carousel" class="date-carousel">
+                        <!-- Dynamically filled by JS -->
+                    </div>
+                </div>
+
+                <!-- Progress Ring Section -->
+                <div class="progress-card glass-card">
+                    <div class="progress-info">
+                        <h3>Daily Completion</h3>
+                        <p>Complete all routines to secure today's streak.</p>
+                        <span id="dashboard-progress-text">0%</span>
+                    </div>
+                    
+                    <!-- SVG Circle Progress -->
+                    <div class="progress-ring-wrapper">
+                        <svg>
+                            <circle class="ring-track" cx="40" cy="40" r="34"></circle>
+                            <circle id="progress-circle-fill" class="ring-fill" cx="40" cy="40" r="34"></circle>
+                        </svg>
+                        <div class="ring-icon-center">
+                            <i data-lucide="award"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- List of Daily Routines -->
+                <div class="routines-container">
+                    <h4>Today's Routines</h4>
+                    <div id="habit-cards-list">
+                        <!-- Dynamic Habit Cards Rendered Here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 2: LEADERBOARD -->
+            <section id="leaderboard-view" class="view-section hidden">
+                <div class="leaderboard-card glass-card">
+                    <div class="card-header">
+                        <div>
+                            <h3>Friend Standings</h3>
+                            <p>Who is maintaining consistency?</p>
+                        </div>
+                        <i data-lucide="users"></i>
+                    </div>
+
+                    <div id="leaderboard-list">
+                        <!-- Dynamic Leaderboard Items Rendered Here -->
+                    </div>
+                </div>
+
+                <!-- Social Reactions Feed -->
+                <div class="reactions-card glass-card">
+                    <div class="card-header">
+                        <h3>Cheer Alerts</h3>
+                        <span id="unread-reactions-badge" class="hidden">New</span>
+                    </div>
+                    <div id="reactions-feed">
+                        <!-- Dynamic Reactions Rendered Here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 3: TIMELINE GRID -->
+            <section id="timeline-view" class="view-section hidden">
+                <div class="grid-card glass-card">
+                    <div class="card-header">
+                        <div>
+                            <h3>180-Day Challenge Board</h3>
+                            <p>Visualize your journey of self-improvement.</p>
+                        </div>
+                        <i data-lucide="grid"></i>
+                    </div>
+
+                    <!-- 180 Days Grid -->
+                    <div id="challenge-grid-180">
+                        <!-- 180 Boxes Created Dynamically -->
+                    </div>
+
+                    <div class="grid-legend">
+                        <div class="legend-item">
+                            <span class="legend-dot completed"></span> Completed
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot partial"></span> Partial
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot missed"></span> Missed
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 4: SETTINGS / MANAGE -->
+            <section id="settings-view" class="view-section hidden">
+                <!-- Add Custom Habit Card -->
+                <div class="settings-card glass-card">
+                    <div class="card-header">
+                        <h3>Create Custom Routine</h3>
+                        <i data-lucide="plus-circle"></i>
+                    </div>
+
+                    <form id="create-habit-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Routine Name</label>
+                                <input type="text" id="habit-name-input" required placeholder="e.g. Read Math Pages">
+                            </div>
+                            <div class="form-group text-center-input">
+                                <label>Icon (Emoji)</label>
+                                <input type="text" id="habit-icon-input" required placeholder="📖" value="🔥">
+                            </div>
+                        </div>
+
+                        <div class="form-row three-cols">
+                            <div class="form-group col-span-2">
+                                <label>Goal Type</label>
+                                <select id="habit-goal-type-select">
+                                    <option value="boolean">Checkbox check-in</option>
+                                    <option value="counter">Counter (Water, pages, etc.)</option>
+                                    <option value="timer">Timer (Workout minutes)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Target</label>
+                                <input type="number" id="habit-target-input" step="any" required value="1">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Unit</label>
+                            <input type="text" id="habit-unit-input" required placeholder="pages, minutes, cups" value="times">
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            Add to Routines
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Reset Password Card -->
+                <div class="settings-card glass-card">
+                    <h3>Update Credentials</h3>
+                    <form id="reset-password-form" class="auth-form">
+                        <div class="input-group">
+                            <label>Current Password</label>
+                            <input type="password" id="reset-current-password" required placeholder="••••••••">
+                        </div>
+                        <div class="input-group">
+                            <label>New Password</label>
+                            <input type="password" id="reset-new-password" required placeholder="Min. 8 chars, 1 uppercase, 1 symbol">
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            Reset Password
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Profile / Account Stats Card -->
+                <div class="settings-card glass-card">
+                    <h3>Challenger Status</h3>
+                    
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <span class="label">Current Streak</span>
+                            <span id="profile-streak-count" class="value violet">0 Days</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="label">All-time High</span>
+                            <span id="profile-highest-streak" class="value pink">0 Days</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- BOTTOM TABS NAVIGATION BAR -->
+        <nav class="nav-bar">
+            <a href="#" class="nav-tab active" data-view="dashboard">
+                <i data-lucide="check-square"></i>
+                <span>Routines</span>
+            </a>
+            <a href="#" class="nav-tab" data-view="leaderboard">
+                <i data-lucide="users"></i>
+                <span>Friends</span>
+            </a>
+            <a href="#" class="nav-tab" data-view="timeline">
+                <i data-lucide="calendar"></i>
+                <span>180 Days</span>
+            </a>
+            <a href="#" class="nav-tab" data-view="settings">
+                <i data-lucide="settings"></i>
+                <span>Manage</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- Lucide init -->
+    <script>
+        lucide.createIcons();
+    </script>
+    <script src="app.js?v=1.0.4"></script>
+</body>
+</html>
