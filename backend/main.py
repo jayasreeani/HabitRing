@@ -163,8 +163,9 @@ def on_startup():
 # Auth APIs
 @app.post("/api/auth/register", response_model=schemas.UserResponse)
 def register_user(reg_data: schemas.UserRegister, db: Session = Depends(get_db)):
+    normalized_email = reg_data.email.strip().lower()
     # Check if email exists
-    existing = db.query(models.User).filter(models.User.email == reg_data.email).first()
+    existing = db.query(models.User).filter(models.User.email == normalized_email).first()
     if existing:
         raise HTTPException(status_code=400, detail="User with this email already exists")
         
@@ -179,7 +180,7 @@ def register_user(reg_data: schemas.UserRegister, db: Session = Depends(get_db))
     new_user = models.User(
         id=user_id,
         name=reg_data.name,
-        email=reg_data.email,
+        email=normalized_email,
         password_hash=auth.hash_password(reg_data.password)
     )
     db.add(new_user)
@@ -197,7 +198,8 @@ def login_user(login_data: schemas.UserLogin, request: Request, db: Session = De
     if not check_rate_limit(ip):
         raise HTTPException(status_code=429, detail="Too many login attempts. Please try again in a minute.")
         
-    db_user = db.query(models.User).filter(models.User.email == login_data.email).first()
+    normalized_email = login_data.email.strip().lower()
+    db_user = db.query(models.User).filter(models.User.email == normalized_email).first()
     if not db_user:
         raise HTTPException(status_code=401, detail="Invalid email or password")
         
@@ -225,7 +227,8 @@ def reset_password(reset_data: schemas.PasswordReset, db: Session = Depends(get_
 
 @app.post("/api/auth/forgot-password")
 def forgot_password_reset(data: schemas.ForgotPasswordReset, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == data.email).first()
+    normalized_email = data.email.strip().lower()
+    user = db.query(models.User).filter(models.User.email == normalized_email).first()
     if not user:
         raise HTTPException(status_code=404, detail="Email address not found")
     if not user.name or user.name.strip().lower() != data.name.strip().lower():
