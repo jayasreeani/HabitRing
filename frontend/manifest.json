@@ -1,0 +1,24 @@
+{
+  "name": "HabitRing - 180 Day Challenge",
+  "short_name": "HabitRing",
+  "description": "Premium 180-Day Daily Routine Challenge and AI Habit Coach Companion.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#090714",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
