@@ -11,8 +11,20 @@ def get_gemini_completion(prompt: str) -> str:
     """
     if not GEMINI_API_KEY:
         # Fallback Mock Logic
-        if "completed" in prompt.lower() and "remaining/incomplete habits: none" in prompt.lower():
+        prompt_lower = prompt.lower()
+        if "completed" in prompt_lower and "remaining/incomplete habits: none" in prompt_lower:
             return "Fantastic work today! You completed all your habits and kept your streak alive. Keep pushing forward! 🔥"
+            
+        # Keyword-based mock coach answers
+        if "read" in prompt_lower or "book" in prompt_lower:
+            return "To complete your reading target, try reading just 2-3 pages during your morning tea or right before sleeping. Small, consistent blocks build the habit fast! 📖"
+        elif "exercise" in prompt_lower or "workout" in prompt_lower or "tired" in prompt_lower or "run" in prompt_lower:
+            return "If you are tired, don't force a heavy 1-hour session. Instead, do a light 10-minute stretch or walk. Keeping the daily routine alive is more important than intensity! 🏃‍♂️"
+        elif "focus" in prompt_lower or "distract" in prompt_lower:
+            return "To stay focused, try the Pomodoro technique: work for 25 minutes, then take a 5-minute break. Remove notifications from your workspace! ⏱️"
+        elif "streak" in prompt_lower:
+            return "Protecting your streak is all about making the minimum entry barrier tiny. If you are struggling, reduce the habit length just to secure the log! ⚡"
+            
         return "Keep going! You've got this. Let's finish today's remaining habits strong and start fresh tomorrow!"
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
