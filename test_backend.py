@@ -145,6 +145,51 @@ def run_tests():
         assert len(unread_reactions) == 1, "Expected 1 unread reaction for Alice"
         print("Passed: Bob cheered Alice successfully and reaction stored.")
 
+        # 7. Test Forgot Password recovery flow
+        print("Testing public forgot password recovery endpoint...")
+        import schemas
+        from fastapi import HTTPException
+        
+        # Test 7.1: Incorrect challenger name validation
+        data_bad_name = schemas.ForgotPasswordReset(
+            email="alice@habitring.com",
+            name="Wrong Name",
+            new_password="NewSecureP@ss123"
+        )
+        try:
+            main.forgot_password_reset(data_bad_name, db)
+            assert False, "Should have raised HTTPException for mismatching name"
+        except HTTPException as e:
+            assert e.status_code == 400
+            print("Passed: Mismatching challenger name caught correctly.")
+
+        # Test 7.2: Weak password validation
+        data_weak_pw = schemas.ForgotPasswordReset(
+            email="alice@habitring.com",
+            name="Alice Smith",
+            new_password="weak"
+        )
+        try:
+            main.forgot_password_reset(data_weak_pw, db)
+            assert False, "Should have raised HTTPException for weak password"
+        except HTTPException as e:
+            assert e.status_code == 400
+            print("Passed: Weak password caught correctly.")
+
+        # Test 7.3: Successful reset
+        data_ok = schemas.ForgotPasswordReset(
+            email="alice@habitring.com",
+            name="Alice Smith",
+            new_password="NewSecureP@ss123"
+        )
+        res = main.forgot_password_reset(data_ok, db)
+        assert res["status"] == "success"
+        
+        # Verify database update
+        db.refresh(user1)
+        assert auth.verify_password("NewSecureP@ss123", user1.password_hash)
+        print("Passed: Public forgot password reset completed successfully.")
+
         print("=== ALL HABITRING INTEGRATION TESTS COMPLETED SUCCESSFULLY ===")
     finally:
         db.close()

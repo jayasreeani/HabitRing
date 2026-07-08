@@ -223,6 +223,21 @@ def reset_password(reset_data: schemas.PasswordReset, db: Session = Depends(get_
     db.commit()
     return {"status": "success", "message": "Password updated successfully"}
 
+@app.post("/api/auth/forgot-password")
+def forgot_password_reset(data: schemas.ForgotPasswordReset, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == data.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Email address not found")
+    if not user.name or user.name.strip().lower() != data.name.strip().lower():
+        raise HTTPException(status_code=400, detail="Verification failed: Challenger name does not match")
+    try:
+        auth.validate_password_strength(data.new_password)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    user.password_hash = auth.hash_password(data.new_password)
+    db.commit()
+    return {"status": "success", "message": "Password reset successfully"}
+
 # Habits APIs
 @app.get("/api/habits", response_model=List[schemas.HabitResponse])
 def get_habits(db: Session = Depends(get_db), current_user = Depends(get_current_user)):

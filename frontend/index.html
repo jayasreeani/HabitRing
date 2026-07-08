@@ -38,7 +38,10 @@
                         <input type="email" id="login-email" required placeholder="your.name@email.com">
                     </div>
                     <div class="input-group">
-                        <label>Password</label>
+                        <div class="label-row" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <label style="margin-bottom: 0;">Password</label>
+                            <a href="#" id="forgot-password-link" class="forgot-link" style="font-size: 11px; color: var(--color-pink); text-decoration: none;">Forgot?</a>
+                        </div>
                         <input type="password" id="login-password" required placeholder="••••••••">
                     </div>
                     <button type="submit" class="btn-primary">
@@ -58,15 +61,51 @@
                     </div>
                     <div class="input-group">
                         <label>Password</label>
-                        <input type="password" id="register-password" required placeholder="Min. 8 chars, 1 uppercase, 1 symbol">
+                        <input type="password" id="register-password" required placeholder="Create strong password">
+                        <!-- Password strength checklist -->
+                        <div class="password-checklist" id="register-password-checklist">
+                            <div class="checklist-item" data-rule="length"><span class="bullet"></span> At least 8 characters</div>
+                            <div class="checklist-item" data-rule="uppercase"><span class="bullet"></span> One uppercase letter</div>
+                            <div class="checklist-item" data-rule="lowercase"><span class="bullet"></span> One lowercase letter</div>
+                            <div class="checklist-item" data-rule="number"><span class="bullet"></span> One digit (0-9)</div>
+                            <div class="checklist-item" data-rule="special"><span class="bullet"></span> One symbol (!@#$%^&*)</div>
+                        </div>
                     </div>
                     <button type="submit" class="btn-secondary">
                         Create Account & Join <i data-lucide="user-plus"></i>
                     </button>
                 </form>
 
+                <!-- Forgot Password Form (Hidden by default) -->
+                <form id="forgot-password-form" class="auth-form hidden">
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" id="forgot-email" required placeholder="your.name@email.com">
+                    </div>
+                    <div class="input-group">
+                        <label>Challenger Name (for verification)</label>
+                        <input type="text" id="forgot-name" required placeholder="e.g. John Doe">
+                    </div>
+                    <div class="input-group">
+                        <label>New Password</label>
+                        <input type="password" id="forgot-new-password" required placeholder="Enter strong new password">
+                        <!-- Password strength checklist -->
+                        <div class="password-checklist" id="forgot-password-checklist">
+                            <div class="checklist-item" data-rule="length"><span class="bullet"></span> At least 8 characters</div>
+                            <div class="checklist-item" data-rule="uppercase"><span class="bullet"></span> One uppercase letter</div>
+                            <div class="checklist-item" data-rule="lowercase"><span class="bullet"></span> One lowercase letter</div>
+                            <div class="checklist-item" data-rule="number"><span class="bullet"></span> One digit (0-9)</div>
+                            <div class="checklist-item" data-rule="special"><span class="bullet"></span> One symbol (!@#$%^&*)</div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        Reset Password & Login <i data-lucide="check-circle"></i>
+                    </button>
+                </form>
+
                 <div class="auth-footer">
                     <a href="#" id="toggle-auth-btn">Don't have an account? Sign up</a>
+                    <a href="#" id="back-to-login-btn" class="hidden">Back to Login</a>
                 </div>
             </div>
         </div>
@@ -252,7 +291,15 @@
                         </div>
                         <div class="input-group">
                             <label>New Password</label>
-                            <input type="password" id="reset-new-password" required placeholder="Min. 8 chars, 1 uppercase, 1 symbol">
+                            <input type="password" id="reset-new-password" required placeholder="Enter strong new password">
+                            <!-- Password strength checklist -->
+                            <div class="password-checklist" id="reset-password-checklist">
+                                <div class="checklist-item" data-rule="length"><span class="bullet"></span> At least 8 characters</div>
+                                <div class="checklist-item" data-rule="uppercase"><span class="bullet"></span> One uppercase letter</div>
+                                <div class="checklist-item" data-rule="lowercase"><span class="bullet"></span> One lowercase letter</div>
+                                <div class="checklist-item" data-rule="number"><span class="bullet"></span> One digit (0-9)</div>
+                                <div class="checklist-item" data-rule="special"><span class="bullet"></span> One symbol (!@#$%^&*)</div>
+                            </div>
                         </div>
                         <button type="submit" class="btn-primary">
                             Reset Password

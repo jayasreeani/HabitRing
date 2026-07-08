@@ -1164,3 +1164,48 @@ select option {
 .content-scroller {
     padding-bottom: 120px !important;
 }
+
+/* Password Complexity Checklist */
+.password-checklist {
+    margin-top: 8px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.checklist-item {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+}
+
+.checklist-item .bullet {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #f43f5e; /* Red for invalid */
+    display: inline-block;
+    transition: all 0.25s ease;
+}
+
+.checklist-item.valid {
+    color: #10b981; /* Green for valid */
+}
+
+.checklist-item.valid .bullet {
+    background: #10b981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+}
+
+.forgot-link:hover {
+    text-decoration: underline !important;
+    opacity: 0.9;
+}

@@ -38,6 +38,13 @@ const elements = {
     habitGoalTypeSelect: document.getElementById('habit-goal-type-select'),
     habitTargetInput: document.getElementById('habit-target-input'),
     habitUnitInput: document.getElementById('habit-unit-input'),
+
+    forgotPasswordForm: document.getElementById('forgot-password-form'),
+    forgotPasswordLink: document.getElementById('forgot-password-link'),
+    backToLoginBtn: document.getElementById('back-to-login-btn'),
+    registerPasswordInput: document.getElementById('register-password'),
+    forgotPasswordInput: document.getElementById('forgot-new-password'),
+    resetPasswordInput: document.getElementById('reset-new-password'),
 };
 
 // Global App State
@@ -141,9 +148,83 @@ function checkAuth() {
     }
 }
 
+// Password Complexity Validation Helper
+function checkPasswordStrength(password, checklistContainer) {
+    if (!checklistContainer) return false;
+    const rules = {
+        length: password.length >= 8,
+        uppercase: /[A-Z]/.test(password),
+        lowercase: /[a-z]/.test(password),
+        number: /[0-9]/.test(password),
+        special: /[!@#$%^&*()\-=_+\[\]{}|;:',.<>?/~`]/.test(password),
+    };
+    
+    let allValid = true;
+    for (const [rule, isValid] of Object.entries(rules)) {
+        const item = checklistContainer.querySelector(`[data-rule="${rule}"]`);
+        if (item) {
+            if (isValid) {
+                item.classList.add('valid');
+            } else {
+                item.classList.remove('valid');
+                allValid = false;
+            }
+        }
+    }
+    return allValid;
+}
+
 // Bind Authentication Listeners
+if (elements.registerPasswordInput) {
+    elements.registerPasswordInput.oninput = (e) => {
+        const container = document.getElementById('register-password-checklist');
+        checkPasswordStrength(e.target.value, container);
+    };
+}
+
+if (elements.forgotPasswordInput) {
+    elements.forgotPasswordInput.oninput = (e) => {
+        const container = document.getElementById('forgot-password-checklist');
+        checkPasswordStrength(e.target.value, container);
+    };
+}
+
+if (elements.resetPasswordInput) {
+    elements.resetPasswordInput.oninput = (e) => {
+        const container = document.getElementById('reset-password-checklist');
+        checkPasswordStrength(e.target.value, container);
+    };
+}
+
+if (elements.forgotPasswordLink) {
+    elements.forgotPasswordLink.onclick = (e) => {
+        e.preventDefault();
+        elements.loginForm.classList.add('hidden');
+        elements.registerForm.classList.add('hidden');
+        elements.forgotPasswordForm.classList.remove('hidden');
+        elements.toggleAuthBtn.classList.add('hidden');
+        elements.backToLoginBtn.classList.remove('hidden');
+    };
+}
+
+if (elements.backToLoginBtn) {
+    elements.backToLoginBtn.onclick = (e) => {
+        e.preventDefault();
+        elements.forgotPasswordForm.classList.add('hidden');
+        elements.registerForm.classList.add('hidden');
+        elements.loginForm.classList.remove('hidden');
+        elements.toggleAuthBtn.classList.remove('hidden');
+        elements.backToLoginBtn.classList.add('hidden');
+        elements.toggleAuthBtn.textContent = "Don't have an account? Sign up";
+    };
+}
+
 elements.toggleAuthBtn.onclick = (e) => {
     e.preventDefault();
+    elements.forgotPasswordForm.classList.add('hidden');
+    elements.backToLoginBtn.classList.add('hidden');
+    elements.toggleAuthBtn.classList.remove('hidden');
+    
     if (elements.loginForm.classList.contains('hidden')) {
         elements.loginForm.classList.remove('hidden');
         elements.registerForm.classList.add('hidden');
@@ -178,7 +259,14 @@ elements.registerForm.onsubmit = async (e) => {
     e.preventDefault();
     const name = document.getElementById('register-name').value.trim();
     const email = document.getElementById('register-email').value.trim();
-    const password = document.getElementById('register-password').value;
+    const password = elements.registerPasswordInput.value;
+    
+    const container = document.getElementById('register-password-checklist');
+    const isStrong = checkPasswordStrength(password, container);
+    if (!isStrong) {
+        showToast("Password is not strong enough! Please satisfy all requirements.", "error");
+        return;
+    }
     
     try {
         const data = await apiRequest('/auth/register', 'POST', { name, email, password });
@@ -193,6 +281,39 @@ elements.registerForm.onsubmit = async (e) => {
         showToast(err.message, 'error');
     }
 };
+
+if (elements.forgotPasswordForm) {
+    elements.forgotPasswordForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('forgot-email').value.trim();
+        const name = document.getElementById('forgot-name').value.trim();
+        const password = elements.forgotPasswordInput.value;
+        
+        const container = document.getElementById('forgot-password-checklist');
+        const isStrong = checkPasswordStrength(password, container);
+        if (!isStrong) {
+            showToast("Password is not strong enough! Please satisfy all requirements.", "error");
+            return;
+        }
+        
+        try {
+            await apiRequest('/auth/forgot-password', 'POST', { email, name, new_password: password });
+            showToast("Password reset successfully! Logging you in...", "success");
+            
+            // Automatically log in the user
+            const data = await apiRequest('/auth/login', 'POST', { email, password });
+            sessionStorage.setItem('perf_eval_token', data.token);
+            sessionStorage.setItem('perf_eval_user_name', data.name);
+            sessionStorage.setItem('perf_eval_user_email', data.email);
+            
+            elements.authScreen.classList.add('hidden');
+            elements.forgotPasswordForm.reset();
+            initApp();
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    };
+}
 
 elements.logoutBtn.onclick = () => {
     if (confirm("Are you sure you want to exit the challenge?")) {
@@ -687,12 +808,24 @@ if (elements.resetPasswordForm) {
     elements.resetPasswordForm.onsubmit = async (e) => {
         e.preventDefault();
         const current_password = document.getElementById('reset-current-password').value;
-        const new_password = document.getElementById('reset-new-password').value;
+        const new_password = elements.resetPasswordInput.value;
+        
+        const container = document.getElementById('reset-password-checklist');
+        const isStrong = checkPasswordStrength(new_password, container);
+        if (!isStrong) {
+            showToast("New password is not strong enough! Please satisfy all requirements.", "error");
+            return;
+        }
         
         try {
             await apiRequest('/auth/reset-password', 'POST', { current_password, new_password });
             showToast("Password updated successfully!", "success");
             elements.resetPasswordForm.reset();
+            
+            // Clear checklist items
+            if (container) {
+                container.querySelectorAll('.checklist-item').forEach(item => item.classList.remove('valid'));
+            }
         } catch (err) {
             showToast(err.message, 'error');
         }

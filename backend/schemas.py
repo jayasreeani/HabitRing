@@ -91,3 +91,8 @@ class DailyDetailsResponse(BaseModel):
 class PasswordReset(BaseModel):
     current_password: str
     new_password: str
+
+class ForgotPasswordReset(BaseModel):
+    email: str
+    name: str
+    new_password: str
