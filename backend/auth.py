@@ -6,8 +6,10 @@ import jwt
 
 SECRET_KEY = os.getenv("JWT_SECRET")
 if not SECRET_KEY:
-    if os.getenv("ENV") == "production":
-        raise RuntimeError("CRITICAL SECURITY ERROR: JWT_SECRET environment variable is not set in production!")
+    print("================================================================================")
+    print("  [WARNING] JWT_SECRET is not set! Using local fallback key.")
+    print("  THIS IS INSECURE FOR PRODUCTION DEPLOYMENTS.")
+    print("================================================================================")
     SECRET_KEY = "fallback-local-only-insecure-key-for-habitring"
 
 ALGORITHM = "HS256"

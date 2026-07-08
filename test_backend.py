@@ -78,7 +78,11 @@ def run_tests():
         print(f"Created custom habit: {custom_habit.name}")
 
         # 5. Log Habits and recalculate streaks
-        print("Simulating habit logging for Alice on date 2026-07-05 (yesterday)...")
+        import datetime
+        yesterday_str = (datetime.date.today() - datetime.timedelta(days=1)).isoformat()
+        today_str = datetime.date.today().isoformat()
+
+        print(f"Simulating habit logging for Alice on date {yesterday_str} (yesterday)...")
         # Alice completes all 6 habits (5 global + 1 custom)
         active_habits_alice = db.query(models.Habit).filter(
             (models.Habit.created_by == None) | (models.Habit.created_by == user1.id)
@@ -89,7 +93,7 @@ def run_tests():
                 id=f"log_y_{h.id}",
                 user_id=user1.id,
                 habit_id=h.id,
-                date="2026-07-05",
+                date=yesterday_str,
                 value=h.target_value,
                 completed=True
             )
@@ -102,14 +106,14 @@ def run_tests():
         print(f"Alice's calculated streak (completed yesterday): {user1.streak} days")
         assert user1.streak == 1, f"Expected streak of 1, got {user1.streak}"
 
-        # Alice also completes all habits today (2026-07-06)
-        print("Simulating habit logging for Alice on date 2026-07-06 (today)...")
+        # Alice also completes all habits today
+        print(f"Simulating habit logging for Alice on date {today_str} (today)...")
         for h in active_habits_alice:
             log = models.DailyLog(
                 id=f"log_t_{h.id}",
                 user_id=user1.id,
                 habit_id=h.id,
-                date="2026-07-06",
+                date=today_str,
                 value=h.target_value,
                 completed=True
             )
