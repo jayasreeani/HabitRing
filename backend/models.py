@@ -21,7 +21,7 @@ class JSONText(TypeDecorator):
         return None
 
 class User(Base):
-    __tablename__ = "users"
+    __tablename__ = "habit_users"
 
     id = Column(String, primary_key=True, index=True)
     name = Column(String, nullable=False)
@@ -43,7 +43,7 @@ class Habit(Base):
     goal_type = Column(String, default="boolean") # boolean, counter, timer
     target_value = Column(Float, default=1.0)
     unit = Column(String, default="times") # times, liters, pages, minutes
-    created_by = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=True) # None for global/system defaults
+    created_by = Column(String, ForeignKey("habit_users.id", ondelete="CASCADE"), nullable=True) # None for global/system defaults
 
     creator = relationship("User", back_populates="habits")
     logs = relationship("DailyLog", back_populates="habit", cascade="all, delete-orphan")
@@ -52,7 +52,7 @@ class DailyLog(Base):
     __tablename__ = "daily_logs"
 
     id = Column(String, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(String, ForeignKey("habit_users.id", ondelete="CASCADE"), nullable=False)
     habit_id = Column(String, ForeignKey("habits.id", ondelete="CASCADE"), nullable=False)
     date = Column(String, index=True, nullable=False) # YYYY-MM-DD
     value = Column(Float, default=0.0)
@@ -65,8 +65,8 @@ class Reaction(Base):
     __tablename__ = "reactions"
 
     id = Column(String, primary_key=True, index=True)
-    sender_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    receiver_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    sender_id = Column(String, ForeignKey("habit_users.id", ondelete="CASCADE"), nullable=False)
+    receiver_id = Column(String, ForeignKey("habit_users.id", ondelete="CASCADE"), nullable=False)
     type = Column(String, nullable=False) # cheer, nudge, fire
     timestamp = Column(String, nullable=False) # ISO time string
     read = Column(Boolean, default=False)
