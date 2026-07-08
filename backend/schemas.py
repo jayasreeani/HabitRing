@@ -96,3 +96,14 @@ class ForgotPasswordReset(BaseModel):
     email: str
     name: str
     new_password: str
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class CoachChatRequest(BaseModel):
+    message: str
+    history: List[ChatMessage] = []
+
+class CoachChatResponse(BaseModel):
+    response: str

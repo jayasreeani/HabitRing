@@ -167,6 +167,15 @@
                     </div>
                 </div>
 
+                <!-- AI Daily Review Banner -->
+                <div id="ai-daily-review-banner" class="glass-card ai-banner-card hidden">
+                    <div class="ai-banner-header">
+                        <i data-lucide="sparkles" class="ai-banner-icon"></i>
+                        <h3>Daily Coach Insights</h3>
+                    </div>
+                    <p id="ai-daily-review-text" class="ai-banner-content">Analyzing today's logging trends...</p>
+                </div>
+
                 <!-- List of Daily Routines -->
                 <div class="routines-container">
                     <h4>Today's Routines</h4>
@@ -324,6 +333,35 @@
                 </div>
             </section>
 
+            <!-- VIEW 5: AI COACH CHAT -->
+            <section id="ai-coach-view" class="view-section hidden">
+                <div class="chat-card glass-card">
+                    <div class="card-header">
+                        <div>
+                            <h3>AI Habit Coach</h3>
+                            <p>Ask for advice, routine improvements, or motivation.</p>
+                        </div>
+                        <i data-lucide="sparkles" class="text-purple-400" style="color: var(--color-pink);"></i>
+                    </div>
+
+                    <!-- Chat Message Area -->
+                    <div id="ai-chat-messages" class="chat-messages">
+                        <div class="message assistant">
+                            <div class="message-bubble">
+                                Hello! I am your AI Habit Coach. How is your 180-Day Challenge going? Ask me any questions about building routines or staying consistent!
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input Controls -->
+                    <form id="ai-chat-form" class="chat-input-area">
+                        <input type="text" id="ai-chat-input" required placeholder="Ask your coach anything..." autocomplete="off">
+                        <button type="submit" class="btn-send">
+                            <i data-lucide="send"></i>
+                        </button>
+                    </form>
+                </div>
+            </section>
         </main>
 
         <!-- BOTTOM TABS NAVIGATION BAR -->
@@ -331,6 +369,10 @@
             <a href="#" class="nav-tab active" data-view="dashboard">
                 <i data-lucide="check-square"></i>
                 <span>Routines</span>
+            </a>
+            <a href="#" class="nav-tab" data-view="ai-coach">
+                <i data-lucide="sparkles"></i>
+                <span>AI Coach</span>
             </a>
             <a href="#" class="nav-tab" data-view="leaderboard">
                 <i data-lucide="users"></i>

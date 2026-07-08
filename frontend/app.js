@@ -356,6 +356,8 @@ async function initApp() {
         renderTimelineGrid();
         renderLeaderboard();
         updateDayLabelOffset(new Date());
+        fetchDailyReview();
+        setupAiCoach();
         
         // 4. Start Social Polling Background Service (Sync standings & reactions)
         startBackgroundService();
@@ -612,6 +614,7 @@ async function updateStreaks() {
             elements.profileHighestStreak.textContent = `${self.highest_streak} Days`;
         }
         renderTimelineGrid();
+        fetchDailyReview();
     } catch (e) {
         console.error("Streak sync failed:", e);
     }
@@ -840,6 +843,88 @@ if (elements.logoutBtn) {
         sessionStorage.clear();
         window.location.reload();
     };
+}
+
+// -------------------------------------------------------------
+// AI Integration Helpers & Event Listeners
+// -------------------------------------------------------------
+let aiCoachHistory = [];
+
+async function fetchDailyReview() {
+    const banner = document.getElementById('ai-daily-review-banner');
+    const text = document.getElementById('ai-daily-review-text');
+    if (!banner || !text) return;
+
+    banner.classList.remove('hidden');
+    text.textContent = "Analyzing today's logging trends...";
+
+    try {
+        const data = await apiRequest('/ai/daily-review', 'GET');
+        text.textContent = data.message;
+    } catch (e) {
+        console.error("AI Daily review error:", e);
+        banner.classList.add('hidden');
+    }
+}
+
+function setupAiCoach() {
+    const form = document.getElementById('ai-chat-form');
+    if (form) {
+        form.onsubmit = handleAiCoachChat;
+    }
+}
+
+async function handleAiCoachChat(e) {
+    e.preventDefault();
+    const input = document.getElementById('ai-chat-input');
+    const container = document.getElementById('ai-chat-messages');
+    if (!input || !container) return;
+
+    const message = input.value.trim();
+    if (!message) return;
+
+    // Clear input
+    input.value = "";
+
+    // Append User Message to UI
+    appendChatMessage('user', message);
+
+    // Show loading assistant message
+    const loadingMessage = appendChatMessage('assistant', '...');
+
+    try {
+        const response = await apiRequest('/ai/coach', 'POST', {
+            message: message,
+            history: aiCoachHistory
+        });
+
+        // Remove loading message bubble and update with real reply
+        loadingMessage.remove();
+        appendChatMessage('assistant', response.response);
+
+        // Save messages in history
+        aiCoachHistory.push({ role: 'user', content: message });
+        aiCoachHistory.push({ role: 'model', content: response.response });
+    } catch (err) {
+        if (loadingMessage) loadingMessage.remove();
+        appendChatMessage('assistant', 'Sorry, I encountered an error connecting to the coach service. Please try again!');
+    }
+}
+
+function appendChatMessage(role, content) {
+    const container = document.getElementById('ai-chat-messages');
+    if (!container) return null;
+
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `message ${role}`;
+    msgDiv.innerHTML = `
+        <div class="message-bubble">
+            ${content}
+        </div>
+    `;
+    container.appendChild(msgDiv);
+    container.scrollTop = container.scrollHeight;
+    return msgDiv;
 }
 
 // -------------------------------------------------------------

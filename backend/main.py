@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 import models
 import schemas
 import auth
+import ai
 from database import engine, get_db, SessionLocal
 
 app = FastAPI(title="HabitRing API Backend")
@@ -442,3 +443,40 @@ def get_timeline_history(db: Session = Depends(get_db), current_user = Depends(g
     # Sort chronological
     timeline.sort(key=lambda x: x.date)
     return timeline
+
+@app.get("/api/ai/daily-review")
+def get_daily_review(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    import datetime
+    today_str = datetime.date.today().isoformat()
+    
+    # Get all active habits for the user
+    habits = db.query(models.Habit).filter((models.Habit.created_by == None) | (models.Habit.created_by == current_user.id)).all()
+    # Get today's logs
+    logs = db.query(models.DailyLog).filter(models.DailyLog.user_id == current_user.id, models.DailyLog.date == today_str).all()
+    
+    completed = []
+    incomplete = []
+    for h in habits:
+        log = next((l for l in logs if l.habit_id == h.id), None)
+        if log and log.completed:
+            completed.append(h.name)
+        else:
+            incomplete.append(h.name)
+            
+    summary = {
+        "completed": completed,
+        "incomplete": incomplete
+    }
+    
+    review_msg = ai.generate_daily_review(current_user.name, summary, current_user.streak)
+    return {"message": review_msg}
+
+@app.post("/api/ai/coach", response_model=schemas.CoachChatResponse)
+def get_coach_reply(req: schemas.CoachChatRequest, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    habits = db.query(models.Habit).filter((models.Habit.created_by == None) | (models.Habit.created_by == current_user.id)).all()
+    
+    # Convert request history to list of dicts
+    history_list = [{"role": msg.role, "content": msg.content} for msg in req.history]
+    
+    reply = ai.generate_coach_response(current_user.name, habits, history_list, req.message)
+    return schemas.CoachChatResponse(response=reply)
